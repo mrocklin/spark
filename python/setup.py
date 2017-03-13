@@ -69,10 +69,12 @@ elif len(JARS_PATH) == 0 and not os.path.exists(TEMP_PATH):
 
 EXAMPLES_PATH = os.path.join(SPARK_HOME, "examples/src/main/python")
 SCRIPTS_PATH = os.path.join(SPARK_HOME, "bin")
+START_SCRIPTS_PATH = os.path.join(SPARK_HOME, "sbin")
 DATA_PATH = os.path.join(SPARK_HOME, "data")
 LICENSES_PATH = os.path.join(SPARK_HOME, "licenses")
 
 SCRIPTS_TARGET = os.path.join(TEMP_PATH, "bin")
+START_SCRIPTS_TARGET = os.path.join(TEMP_PATH, "sbin")
 JARS_TARGET = os.path.join(TEMP_PATH, "jars")
 EXAMPLES_TARGET = os.path.join(TEMP_PATH, "examples")
 DATA_TARGET = os.path.join(TEMP_PATH, "data")
@@ -117,6 +119,7 @@ try:
         if _supports_symlinks():
             os.symlink(JARS_PATH, JARS_TARGET)
             os.symlink(SCRIPTS_PATH, SCRIPTS_TARGET)
+            os.symlink(START_SCRIPTS_PATH, START_SCRIPTS_TARGET)
             os.symlink(EXAMPLES_PATH, EXAMPLES_TARGET)
             os.symlink(DATA_PATH, DATA_TARGET)
             os.symlink(LICENSES_PATH, LICENSES_TARGET)
@@ -124,6 +127,7 @@ try:
             # For windows fall back to the slower copytree
             copytree(JARS_PATH, JARS_TARGET)
             copytree(SCRIPTS_PATH, SCRIPTS_TARGET)
+            copytree(START_SCRIPTS_PATH, START_SCRIPTS_TARGET)
             copytree(EXAMPLES_PATH, EXAMPLES_TARGET)
             copytree(DATA_PATH, DATA_TARGET)
             copytree(LICENSES_PATH, LICENSES_TARGET)
@@ -140,6 +144,9 @@ try:
     # Scripts directive requires a list of each script path and does not take wild cards.
     script_names = os.listdir(SCRIPTS_TARGET)
     scripts = list(map(lambda script: os.path.join(SCRIPTS_TARGET, script), script_names))
+
+    start_script_names = os.listdir(START_SCRIPTS_TARGET)
+    start_scripts = list(map(lambda script: os.path.join(START_SCRIPTS_TARGET, script), start_script_names))
     # We add find_spark_home.py to the bin directory we install so that pip installed PySpark
     # will search for SPARK_HOME with Python.
     scripts.append("pyspark/find_spark_home.py")
@@ -193,7 +200,7 @@ try:
             'pyspark.data': ['*.txt', '*.data'],
             'pyspark.licenses': ['*.txt'],
             'pyspark.examples.src.main.python': ['*.py', '*/*.py']},
-        scripts=scripts,
+        scripts=scripts + start_scripts,
         license='http://www.apache.org/licenses/LICENSE-2.0',
         install_requires=['py4j==0.10.4'],
         setup_requires=['pypandoc'],
@@ -220,12 +227,14 @@ finally:
         if _supports_symlinks():
             os.remove(os.path.join(TEMP_PATH, "jars"))
             os.remove(os.path.join(TEMP_PATH, "bin"))
+            os.remove(os.path.join(TEMP_PATH, "sbin"))
             os.remove(os.path.join(TEMP_PATH, "examples"))
             os.remove(os.path.join(TEMP_PATH, "data"))
             os.remove(os.path.join(TEMP_PATH, "licenses"))
         else:
             rmtree(os.path.join(TEMP_PATH, "jars"))
             rmtree(os.path.join(TEMP_PATH, "bin"))
+            rmtree(os.path.join(TEMP_PATH, "sbin"))
             rmtree(os.path.join(TEMP_PATH, "examples"))
             rmtree(os.path.join(TEMP_PATH, "data"))
             rmtree(os.path.join(TEMP_PATH, "licenses"))
